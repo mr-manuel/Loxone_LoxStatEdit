@@ -157,6 +157,14 @@ namespace LoxStatEdit
             busyForm.Show(this); // Or busyForm.ShowDialog(this) for a modal form
             Application.DoEvents(); // Process events to ensure the loading form is displayed
 
+            // Enable Double buffering. Note: can make DGV slow in remote desktop
+            if (!System.Windows.Forms.SystemInformation.TerminalServerSession)
+            {
+                Type dgvType = _dataGridView.GetType();
+                PropertyInfo pi = dgvType.GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic);
+                pi.SetValue(_dataGridView, true);
+            }
+
             try
             {
                 // provide a empty list to prevent crash

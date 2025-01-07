@@ -37,7 +37,7 @@ namespace LoxStatEdit
                     // File.AppendAllText("./custom.log", $"{line}\n");
 
                     // string pattern that matches Miniserver Gen 1 and Miniserver Gen 2
-                    string pattern = @"[-rwx]{10}\s+[0-9]+\s+[0-9]+\s+[0-9]+\s+([0-9]+)\s+([A-Za-z]{3}\s+[0-9]{1,2}\s+[0-9:]+)\s+([0-9a-z_\-\.]+)";
+                    string pattern = @"[-rwx]{10}\s+[0-9]+\s+[0-9]+\s+[0-9]+\s+([0-9]+)\s+([A-Za-z]{3}\s+[0-9]{1,2}\s+[0-9:]+)\s+([0-9a-z_\-]+.)([0-9]{4})([0-9]{2})";
                     var result = Regex.Match(line, pattern);
 
                     if (result.Success)
@@ -46,8 +46,17 @@ namespace LoxStatEdit
                         int.TryParse(groups[1].Value, out int size);
 
                         DateTime dateTime;
-                        string dateString = Regex.Replace(groups[2].Value, @"\s+", " ");
-                        string[] formats = { "MMM dd HH:mm", "MMM dd yyyy", "MMM d HH:mm", "MMM d yyyy" };
+                        string dateString;
+                        
+                        if (groups[2].Value.Contains(":"))
+                        {
+                            dateString = groups[4].Value + " " + Regex.Replace(groups[2].Value, @"\s+", " ");
+                        }
+                        else
+                        {
+                            dateString = Regex.Replace(groups[2].Value, @"\s+", " ");
+                        }
+                        string[] formats = { "yyyy MMM dd HH:mm", "MMM dd yyyy", "yyyy MMM d HH:mm", "MMM d yyyy" };
 
                         if (!DateTime.TryParseExact(dateString, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime))
                         {
@@ -57,7 +66,7 @@ namespace LoxStatEdit
                             return null;
                         }
 
-                        var fileName = groups[3].Value;
+                        var fileName = groups[3].Value + groups[4].Value + groups[5].Value;
                         
                         list.Add(new MsFileInfo
                         {

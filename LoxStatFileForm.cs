@@ -53,6 +53,14 @@ namespace LoxStatEdit
             _dataGridView.RowCount = _loxStatFile.DataPoints.Count;
             _dataGridView.MultiSelect = true;
 
+            // Enable Double buffering. Note: can make DGV slow in remote desktop
+            if (!System.Windows.Forms.SystemInformation.TerminalServerSession)
+            {
+                Type dgvType = _dataGridView.GetType();
+                PropertyInfo pi = dgvType.GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic);
+                pi.SetValue(_dataGridView, true);
+            }
+
             RefreshProblems();
             RefreshChart();
         }
