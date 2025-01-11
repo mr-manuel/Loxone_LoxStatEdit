@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -25,6 +26,28 @@ namespace LoxStatEdit
                 get
                 {
                     return (MsFileInfo != null) ? MsFileInfo.FileName : FileInfo.Name;
+                }
+            }
+            public bool IsValidMsStatsFile
+            {
+                get
+                {
+                    var fileName = (MsFileInfo != null) ? MsFileInfo.FileName : FileInfo.Name;
+
+                    // verify if file has valid Loxone stats format with UUID and .yyyyMM extension
+                    var pattern = @"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{16})(_[1-9])?\.([12][0-9]{3})([01][0-9])";
+                    // 1st group (): UUID 
+                    // 2nd group (): yyyy
+                    // 3rd group (): MM 
+                    var result = Regex.Match(fileName, pattern);
+
+                    // no further evaluation of Regex so far
+
+                    var validFormat = false;
+                    if (result.Success)
+                        validFormat = true;
+                    
+                    return (validFormat);
                 }
             }
 
@@ -78,41 +101,106 @@ namespace LoxStatEdit
                 }
             }
 
-            public string Status
+            public DateTime DateModified
             {
                 get
                 {
-                    if(FileInfo == null)
+                    return (FileInfo != null) ? FileInfo.LastWriteTime : MsFileInfo.Date;
+                }
+            }
+
+            public long Size
+            {
+                get
+                {
+                    return (FileInfo != null) ? FileInfo.Length : MsFileInfo.Size;
+                }
+            }
+
+            public const int IDStatusOnlyOnMS = 1;
+
+            public const int IDStatusOnlyOnFS = 2;
+
+            public const int IDStatusNewerOnMS = 3;
+
+            public const int IDStatusNewerOnFS = 4;
+
+            public const int IDStatusLargerOnMS = 5;
+
+            public const int IDStatusLargerOnFS = 6;
+
+            public const int IDStatusSame = 7;
+            public int Status
+            {
+                get
+                {
+                    if (FileInfo == null)
                     {
-                        return "Only on MS";
+                        return IDStatusOnlyOnMS;
                     }
-                    if(MsFileInfo == null)
+                    if (MsFileInfo == null)
                     {
-                        return "Only on FS";
+                        return IDStatusOnlyOnFS;
                     }
-                    if(FileInfo.LastWriteTime > MsFileInfo.Date)
+                    if (FileInfo.LastWriteTime < MsFileInfo.Date)
                     {
-                        return "Newer on FS";
+                        return IDStatusNewerOnMS;
                     }
-                    if(FileInfo.LastWriteTime < MsFileInfo.Date)
+                    if (FileInfo.LastWriteTime > MsFileInfo.Date)
                     {
-                        return "Newer on MS";
+                        return IDStatusNewerOnFS;
                     }
-                    if(FileInfo.Length > MsFileInfo.Size)
+                    if (FileInfo.Length < MsFileInfo.Size)
                     {
-                        return "Larger on FS";
+                        return IDStatusLargerOnMS;
                     }
-                    if(FileInfo.Length < MsFileInfo.Size)
+                    if (FileInfo.Length > MsFileInfo.Size)
                     {
-                        return "Larger on MS";
+                        return IDStatusLargerOnFS;
                     }
-                    return "Same date/size";
+                    return IDStatusSame;
+                }
+            }
+
+            public string StatusString
+            {
+                get
+                {
+                    string statusString;
+
+                    switch (Status)
+                    {
+                        case IDStatusOnlyOnMS:
+                            statusString = "Only on MS";
+                            break;
+                        case IDStatusOnlyOnFS:
+                            statusString = "Only on FS";
+                            break;
+                        case IDStatusNewerOnMS:
+                            statusString = "Newer on MS";
+                            break;
+                        case IDStatusNewerOnFS:
+                            statusString = "Older on MS";
+                            break;
+                        case IDStatusLargerOnMS:
+                            statusString = "Larger on MS";
+                            break;
+                        case IDStatusLargerOnFS:
+                            statusString = "Smaller on MS";
+                            break;
+                        default:
+                            // IDStatusSame
+                            statusString = "Same date/size";
+                            break;
+                    }
+                    
+                    return statusString;
                 }
             }
 
             public override string ToString()
             {
-                return string.Format("{0} ({1})", Name, Status);
+                return string.Format("{0} ({1})", Name, StatusString);
             }
 
             public int CompareTo(FileItem other)
@@ -156,14 +244,6 @@ namespace LoxStatEdit
             busyForm.Top = parent.Top + (parent.Height - busyForm.Height) / 2;
             busyForm.Show(this); // Or busyForm.ShowDialog(this) for a modal form
             Application.DoEvents(); // Process events to ensure the loading form is displayed
-
-            // Enable Double buffering. Note: can make DGV slow in remote desktop
-            if (!System.Windows.Forms.SystemInformation.TerminalServerSession)
-            {
-                Type dgvType = _dataGridView.GetType();
-                PropertyInfo pi = dgvType.GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic);
-                pi.SetValue(_dataGridView, true);
-            }
 
             try
             {
@@ -223,43 +303,94 @@ namespace LoxStatEdit
                 // Clear existing columns
                 _dataGridView.Columns.Clear();
 
+				// Add Cell Formatting
+                _dataGridView.CellFormatting += DataGridView_CellFormatting;
+
                 // Add columns manually in the order you want
                 _dataGridView.Columns.Add(new DataGridViewTextBoxColumn {
                     DataPropertyName = "FileName",
-                    HeaderText = "File",
-                    Width = 250
+                    HeaderText = "FileName",
+                    Width = 250,
+                    ToolTipText = "Name of the file on the Loxone MS and local file system.\n"+
+                        "NOTE: This is typically an UUID plus extension with .yyyyMM",
                 });
                 _dataGridView.Columns.Add(new DataGridViewTextBoxColumn {
                     DataPropertyName = "Name",
                     HeaderText = "Description",
                     MinimumWidth = 250,
+                    ToolTipText = "Defined in Loxone Config and retrieved from statistics data.",
                     AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill, 
                 });
-                _dataGridView.Columns.Add(new DataGridViewTextBoxColumn {
+                _dataGridView.Columns.Add(new DataGridViewTextBoxColumn
+                {
                     DataPropertyName = "YearMonth",
                     HeaderText = "Year/Month",
-                    Width = 90,
+                    Width = 70,
+                    ToolTipText = "Year and month from file extension on MS. \n"+
+                        "NOTE: This date is used on MS to fetch statistics data from a specific year and month.",
                     DefaultCellStyle = { Format = "yyyy-MM" }
                 });
+                _dataGridView.Columns.Add(new DataGridViewTextBoxColumn
+                {
+                    DataPropertyName = "DateModified",
+                    HeaderText = "Date modified",
+                    Width = 120,
+                    ToolTipText = "Date when the file was modified. \nNOTE: files that were downloaded via FTP always " +
+                                  "have a date with this or last year.",
+                    DefaultCellStyle = { Format = "dd.MM.yyyy - HH:mm:ss" }
+                });
                 _dataGridView.Columns.Add(new DataGridViewTextBoxColumn {
-                    DataPropertyName = "Status",
+                    DataPropertyName = "Size",
+                    HeaderText = "Size",
+                    Width = 90,
+                    ToolTipText = "Size of the file on the local file system or MS.",
+                    DefaultCellStyle = new DataGridViewCellStyle()
+                    {
+                        Alignment = DataGridViewContentAlignment.MiddleRight,
+                        ForeColor = System.Drawing.Color.Black
+                    },
+                    AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                });
+                _dataGridView.Columns.Add(new DataGridViewTextBoxColumn {
+                    DataPropertyName = "StatusString",
                     HeaderText = "Status",
-                    Width = 100
+                    Width = 100,
+                    ToolTipText = "Result of a comparision between file on Loxone MS and local file system.",
+                    DefaultCellStyle = new DataGridViewCellStyle()
+                    {
+                        BackColor = System.Drawing.Color.White,
+                        ForeColor = System.Drawing.Color.Black
+                    },
                 });
                 _dataGridView.Columns.Add(new DataGridViewButtonColumn {
                     DataPropertyName = "Download",
                     HeaderText = "Download",
-                    Width = 60
+                    Width = 60,
+                    ToolTipText = "Copy file(s) from Loxone MS to local file system."
                 });
                 _dataGridView.Columns.Add(new DataGridViewButtonColumn {
                     DataPropertyName = "Edit",
                     HeaderText = "Edit",
-                    Width = 50
+                    Width = 50,
+                    ToolTipText = "Edit statistical data (entries) of the file on local file system."
                 });
                 _dataGridView.Columns.Add(new DataGridViewButtonColumn {
                     DataPropertyName = "Upload",
                     HeaderText = "Upload",
-                    Width = 60
+                    Width = 60,
+                    ToolTipText = "Copy file(s) from local file system to Loxone MS."
+                });
+                _dataGridView.Columns.Add(new DataGridViewButtonColumn {
+                    DataPropertyName = "Convert",
+                    HeaderText = "Convert",
+                    Width = 60,
+                    ToolTipText = "Convert data from old meter function block to new style."
+                });
+                _dataGridView.Columns.Add(new DataGridViewButtonColumn {
+                    DataPropertyName = "Delete",
+                    HeaderText = "Delete",
+                    Width = 60,
+                    ToolTipText = "Delete file on Loxone MS and local file system after confirmation."
                 });
 
                 // Bind the SortableBindingList to the DataGridView
@@ -447,6 +578,50 @@ namespace LoxStatEdit
             }
         }
 
+        private bool Convert(FileItem fileItem)
+        {
+            // ToDo: Code missing
+            System.Threading.Thread.Sleep(50);
+            return true;
+        }
+
+        private bool Delete(FileItem fileItem)
+        {
+            try
+            {
+                // Delete file on Loxone MS
+                FtpWebRequest ftpWebRequest = (FtpWebRequest)WebRequest.Create(GetFileNameUri(fileItem.FileName));
+                ftpWebRequest.Method = WebRequestMethods.Ftp.DeleteFile;
+                FtpWebResponse ftpWebResponse = (FtpWebResponse)ftpWebRequest.GetResponse();
+                //Console.WriteLine("Delete status: {0}", ftpWebResponse.StatusDescription);
+                ftpWebResponse.Close();
+
+                // Delete file on local file system
+                var fileNameWithPath = Path.Combine(_folderTextBox.Text, fileItem.FileName);
+                if (File.Exists(fileNameWithPath))
+                {
+                    File.Delete(fileNameWithPath);
+                }
+
+                return true;
+            }
+            catch (WebException ex)
+            {
+                var response = ex.Response as FtpWebResponse;
+                if (response != null)
+                {
+                    MessageBox.Show(ex.Message, "Error  - FTP connection", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"# Message\n{ex.Message}\n\n# Data\n{ex.Data}\n\n# StackTrace\n{ex.StackTrace}", "Error - local file system", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                return false;
+            }
+        }
         #endregion
 
         #region Events
@@ -497,6 +672,13 @@ namespace LoxStatEdit
 
         private void MiniserverForm_Load(object sender, EventArgs e)
         {
+
+            // if not remote desktop session then enable double-buffering optimization
+            if (!System.Windows.Forms.SystemInformation.TerminalServerSession)
+            {
+                typeof(DataGridView).InvokeMember("DoubleBuffered", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.SetProperty, null, _dataGridView, new object[] { true });
+            }
+
             _folderTextBox.Text = Path.Combine(Environment.GetFolderPath(
                 Environment.SpecialFolder.MyDocuments), "LoxStatEdit");
             if(_args.Length >= 1)
@@ -512,7 +694,15 @@ namespace LoxStatEdit
 
         private void DataGridView_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
-            if (e.ColumnIndex == 1) // The Name column is at index 1
+            if (e.ColumnIndex == 0) // The FileName column is at index 0
+            {
+                var fileItem = _fileItems[e.RowIndex];
+                if (!fileItem.IsValidMsStatsFile)
+                {
+                    e.CellStyle.BackColor = System.Drawing.Color.Red;
+                }
+            }
+            if (e.ColumnIndex == 1) // The Description / Name column is at index 1
             {
                 var fileItem = _fileItems[e.RowIndex];
                 if (fileItem.Name == "Download to view description")
@@ -524,30 +714,31 @@ namespace LoxStatEdit
                     e.CellStyle.Font = new System.Drawing.Font(e.CellStyle.Font, System.Drawing.FontStyle.Regular);
                 }
             }
-            if (e.ColumnIndex == 3) // The Status column is at index 3
+            if (e.ColumnIndex == 5) // The Status column is at index 5
             {
                 var fileItem = _fileItems[e.RowIndex];
                 switch (fileItem.Status)
                 {
-                    case "Only on MS":
+                    case FileItem.IDStatusOnlyOnMS:
                         e.CellStyle.BackColor = System.Drawing.Color.LightGray;
                         break;
-                    case "Only on FS":
+                    case FileItem.IDStatusOnlyOnFS:
                         e.CellStyle.BackColor = System.Drawing.Color.LightGoldenrodYellow;
                         break;
-                    case "Newer on MS":
+                    case FileItem.IDStatusNewerOnMS:
                         e.CellStyle.BackColor = System.Drawing.Color.LightGreen;
                         break;
-                    case "Newer on FS":
+                    case FileItem.IDStatusNewerOnFS:
                         e.CellStyle.BackColor = System.Drawing.Color.LightSkyBlue;
                         break;
-                    case "Larger on MS":
+                    case FileItem.IDStatusLargerOnMS:
                         e.CellStyle.BackColor = System.Drawing.Color.LightGreen;
                         break;
-                    case "Larger on FS":
+                    case FileItem.IDStatusLargerOnFS:
                         e.CellStyle.BackColor = System.Drawing.Color.LightSkyBlue;
                         break;
                     default:
+                        // IDStatusSame:
                         e.CellStyle.BackColor = System.Drawing.Color.White;
                         break;
                 }
@@ -565,10 +756,14 @@ namespace LoxStatEdit
                     case 0: e.Value = fileItem.FileName; break;
                     case 1: e.Value = fileItem.Name; break;
                     case 2: e.Value = fileItem.YearMonth; break;
-                    case 3: e.Value = fileItem.Status; break;
-                    case 4: e.Value = "Download"; break;
-                    case 5: e.Value = "Edit"; break;
-                    case 6: e.Value = "Upload"; break;
+                    case 3: e.Value = fileItem.DateModified; break;
+                    case 4: e.Value = fileItem.Size; break;
+                    case 5: e.Value = fileItem.StatusString; break;
+                    case 6: e.Value = "Download"; break;
+                    case 7: e.Value = "Edit"; break;
+                    case 8: e.Value = "Upload"; break;
+                    case 9: e.Value = "Convert"; break;
+                    case 10: e.Value = "Delete"; break;
                     default: e.Value = null; break;
                 }
             }
@@ -587,7 +782,7 @@ namespace LoxStatEdit
             var fileItem = _fileItems[e.RowIndex];
             switch(e.ColumnIndex)
             {
-                case 4: //Download
+                case 6: //Download
                     progressBar.Maximum = 1;
                     progressBar.Value = 0;
                     progressBar.SetState(1);
@@ -606,7 +801,7 @@ namespace LoxStatEdit
                         progressLabel.Text = "Download failed!";
                     }
                     break;
-                case 5: //Edit
+                case 7: //Edit
                     // show error message, if file is not downloaded yet
                     if (fileItem.FileInfo == null)
                     {
@@ -629,7 +824,7 @@ namespace LoxStatEdit
                     RefreshLocal();
                     RefreshGridView();
                     break;
-                case 6: //Upload
+                case 8: //Upload
                     // show error message, if there is no file to upload
                     if (fileItem.FileInfo == null)
                     {
@@ -641,7 +836,7 @@ namespace LoxStatEdit
                     progressBar.Value = 0;
                     progressBar.SetState(1);
                     progressLabel.Text = "Starting upload...";
-                    if(Upload(fileItem))
+                    if (Upload(fileItem))
                     {
                         progressBar.Value = 1;
                         progressLabel.Text = "Upload complete!";
@@ -653,6 +848,63 @@ namespace LoxStatEdit
                         progressBar.Value = 1;
                         progressBar.SetState(2);
                         progressLabel.Text = "Upload failed!";
+                    }
+                    break;
+                case 9: //Convert
+                    // Ask user
+                    if (fileItem.FileInfo != null)
+                    {
+                        // ToDo: ask for UUID of new meter
+                        DialogResult result = MessageBox.Show($"Do you want to convert the file \"{fileItem.FileName}\" from the old meter format to the new one?\n"+
+                            "NOTE: Under constructtion! Currently without any function.", "Question - Convert Stats File", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                        if (result == DialogResult.Yes)
+                        {
+                            progressBar.Maximum = 1;
+                            progressBar.Value = 0;
+                            progressBar.SetState(1);
+                            progressLabel.Text = "Starting converting...";
+                            if (Convert(fileItem))
+                            {
+                                progressBar.Value = 1;
+                                progressLabel.Text = "Converting complete!";
+                                RefreshMs();
+                                RefreshGridView();
+                            }
+                            else
+                            {
+                                progressBar.Value = 1;
+                                progressBar.SetState(2);
+                                progressLabel.Text = "Converting failed!";
+                            }
+                        }
+                    }
+                    break;
+                case 10: //Delete
+                    // show error message, if there is no file to upload
+                    if ((fileItem.FileInfo != null) || (fileItem.MsFileInfo != null))
+                    {
+                        DialogResult result = MessageBox.Show($"Do you want to delete the file \"{fileItem.FileName}\" from the Loxone MS and local file system?", "Question - Delete Stats File from", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                        if (result == DialogResult.Yes)
+                        {
+                            progressBar.Maximum = 1;
+                            progressBar.Value = 0;
+                            progressBar.SetState(1);
+                            progressLabel.Text = "Starting delete...";
+                            if (Delete(fileItem))
+                            {
+                                progressBar.Value = 1;
+                                progressLabel.Text = "Deleting complete!";
+                                RefreshMs();
+                                RefreshLocal();
+                                RefreshGridView();
+                            }
+                            else
+                            {
+                                progressBar.Value = 1;
+                                progressBar.SetState(2);
+                                progressLabel.Text = "Deleting failed!";
+                            }
+                        }
                     }
                     break;
             }
@@ -735,5 +987,9 @@ namespace LoxStatEdit
 
         #endregion
 
+        private void aboutLabel_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
