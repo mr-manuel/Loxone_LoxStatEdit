@@ -305,6 +305,8 @@ namespace LoxStatEdit
 
 				// Add Cell Formatting
                 _dataGridView.CellFormatting += DataGridView_CellFormatting;
+                //_dataGridView.CellToolTipTextNeeded += new System.Windows.Forms.DataGridViewCellToolTipTextNeededEventHandler(ws_cellToolTipTextNeeded);
+                _dataGridView.CellToolTipTextNeeded += DataGridView_CellToolTipTextNeeded;
 
                 // Add columns manually in the order you want
                 _dataGridView.Columns.Add(new DataGridViewTextBoxColumn {
@@ -540,7 +542,8 @@ namespace LoxStatEdit
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"# Message\n{ex.Message}\n\n# Data\n{ex.Data}\n\n# StackTrace\n{ex.StackTrace}", "Error - IList", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"# Message\n{ex.Message}\n\n# Data\n{ex.Data}\n\n# StackTrace\n{ex.StackTrace}", 
+                    "Error - IList", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                 return false;
             }
@@ -572,7 +575,8 @@ namespace LoxStatEdit
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"# Message\n{ex.Message}\n\n# Data\n{ex.Data}\n\n# StackTrace\n{ex.StackTrace}", "Error - IList", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"# Message\n{ex.Message}\n\n# Data\n{ex.Data}\n\n# StackTrace\n{ex.StackTrace}", 
+                    "Error - IList", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                 return false;
             }
@@ -617,7 +621,8 @@ namespace LoxStatEdit
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"# Message\n{ex.Message}\n\n# Data\n{ex.Data}\n\n# StackTrace\n{ex.StackTrace}", "Error - local file system", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"# Message\n{ex.Message}\n\n# Data\n{ex.Data}\n\n# StackTrace\n{ex.StackTrace}", 
+                    "Error - local file system", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                 return false;
             }
@@ -676,7 +681,8 @@ namespace LoxStatEdit
             // if not remote desktop session then enable double-buffering optimization
             if (!System.Windows.Forms.SystemInformation.TerminalServerSession)
             {
-                typeof(DataGridView).InvokeMember("DoubleBuffered", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.SetProperty, null, _dataGridView, new object[] { true });
+                typeof(DataGridView).InvokeMember("DoubleBuffered", System.Reflection.BindingFlags.NonPublic | 
+                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.SetProperty, null, _dataGridView, new object[] { true });
             }
 
             _folderTextBox.Text = Path.Combine(Environment.GetFolderPath(
@@ -750,6 +756,11 @@ namespace LoxStatEdit
         {
             try
             {
+                if ((e.RowIndex < 0) || (e.RowIndex >= _fileItems.Count))
+                {
+                    e.Value = null;
+                    return;
+                }
                 var fileItem = _fileItems[e.RowIndex];
                 switch(e.ColumnIndex)
                 {
@@ -773,6 +784,50 @@ namespace LoxStatEdit
                 Debugger.Break();
             #endif
                 e.Value = null;
+            }
+        }
+
+        private void DataGridView_CellToolTipTextNeeded(object sender, DataGridViewCellToolTipTextNeededEventArgs e)
+        {
+            try
+            {
+                string newLine = Environment.NewLine;
+                if ((e.RowIndex < 0) || (e.RowIndex >= _fileItems.Count))
+                {
+                    e.ToolTipText = null;
+                    return;
+                }
+               
+                var fileItem = _fileItems[e.RowIndex];
+                switch (e.ColumnIndex)
+                {
+                    case 0: // fileItem.FileName; 
+                        if (!fileItem.IsValidMsStatsFile)
+                        {
+                            e.ToolTipText = "The UUID and/or file extension looks malformed.\n\n "+
+                                "Please check, if it is used by the MS. If not, you may consider to remove the file.";
+                        }
+                        break;
+                    case 1: // fileItem.Name; 
+                        break;
+                    case 2: // fileItem.YearMonth; 
+                        break;
+                    case 3: // fileItem.DateModified; 
+                        break;
+                    case 4: // fileItem.Size; 
+                        break;
+                    case 5: // fileItem.StatusString; 
+                        break;
+                    default:
+                        break;
+                }
+            }
+            catch
+            {
+#if DEBUG
+                Debugger.Break();
+#endif
+                e.ToolTipText = "";
             }
         }
 
@@ -805,7 +860,8 @@ namespace LoxStatEdit
                     // show error message, if file is not downloaded yet
                     if (fileItem.FileInfo == null)
                     {
-                        MessageBox.Show($"The file \"{fileItem.FileName}\" cannot be edited, since it's not available on the filesystem.\n\nPlease download it first.", "Error - File not downloaded", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show($"The file \"{fileItem.FileName}\" cannot be edited, since it's not available on the filesystem.\n\n"+
+                            "Please download it first.", "Error - File not downloaded", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         break;
                     }
 
@@ -828,7 +884,8 @@ namespace LoxStatEdit
                     // show error message, if there is no file to upload
                     if (fileItem.FileInfo == null)
                     {
-                        MessageBox.Show($"The file \"{fileItem.FileName}\" cannot be uploaded, since it's not available on the filesystem.\n\nPlease download it first.", "Error - File not downloaded", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show($"The file \"{fileItem.FileName}\" cannot be uploaded, since it's not available on the filesystem.\n\n"+
+                            "Please download it first.", "Error - File not downloaded", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         break;
                     }
 

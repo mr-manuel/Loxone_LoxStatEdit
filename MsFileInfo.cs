@@ -56,38 +56,40 @@ namespace LoxStatEdit
                         var groups = result.Groups;
                         int.TryParse(groups[1].Value, out int size);
 
+                        var isFeb29 = false;
                         DateTime dateTime;
                         string dateString = Regex.Replace(groups[2].Value, @"\s+", " ");
                         string[] formats = { "MMM dd HH:mm", "MMM dd yyyy", "MMM d HH:mm", "MMM d yyyy" };
 
+                        // special handling for Feb 29 to avoid invalid parsing without a year: add a day that will be subtracted later
+                        if (dateString.StartsWith("Feb 29"))
+                        {
+                            dateString = $"Mar 01 {groups[2].Value.Substring(7)}";
+                            isFeb29 = true;
+                        }
+
                         if (!DateTime.TryParseExact(dateString, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime))
                         {
-                            // possibly Feb 29 with time only, but not a leap year. Try again with Mar 01
-                            dateString = $"{groups[2].Value} {DateTime.Now.Year.ToString()}";
-                            if (dateString.StartsWith("Feb 29"))
-                                dateString = $"Mar 01 {DateTime.Now.Year.ToString()} {groups[2].Value.Substring(7)}";
-                            string[] formatswithYear = { "MMM d yyyy HH:mm", "MMM dd yyyy HH:mm" };
-
-                            if (!DateTime.TryParseExact(dateString, formatswithYear, CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime))
-                            {
-                                // Handle the case where none of the formats matches
-                                formats = formats.Concat(formatswithYear).ToArray();
-                                MessageBox.Show($"The date \"{groups[2].Value}\" or \"{dateString}\" could not be matched with one of the following formats:\n{string.Join("\n", formats)}",
-                                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                return null;
-                            }
-                            
+                            // Handle the case where none of the formats matches
+                            MessageBox.Show($"The date \"{dateString}\" could not be matched with one of the following formats:\n{string.Join("\n", formats)}",
+                                "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return null;
                         }
                         // time is in UTC, but we need local time
                         dateTime += TimeZone.CurrentTimeZone.GetUtcOffset(dateTime);
 
-                        var fileName = groups[3].Value;
-
+                        if(isFeb29)
+                        { 
+                            // Removing the day that was added before
+                            dateTime = dateTime.AddDays(-1);
+                        }
                         if (dateTime >= DateTime.Now)
                         {
-                            //filedate newer than now is not possible ... date from the last year
+                            //filedate newer than now is not possible ... date must be from the last year
                             dateTime = dateTime.AddYears(-1);
                         }
+
+                        var fileName = groups[3].Value;
 
                         list.Add(new MsFileInfo
                         {

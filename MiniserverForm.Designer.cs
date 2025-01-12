@@ -48,13 +48,6 @@ namespace LoxStatEdit
             this._urlTextBox = new System.Windows.Forms.TextBox();
             this._folderTextBox = new System.Windows.Forms.TextBox();
             this._dataGridView = new System.Windows.Forms.DataGridView();
-            this.githubLabel = new System.Windows.Forms.LinkLabel();
-            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this._filterTextBox = new System.Windows.Forms.TextBox();
-            this.donateLabel = new System.Windows.Forms.LinkLabel();
-            this.progressBar = new System.Windows.Forms.ProgressBar();
-            this.progressLabel = new System.Windows.Forms.Label();
-            this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this._nameCol = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this._descriptionCol = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this._yearMonthCol = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -66,6 +59,13 @@ namespace LoxStatEdit
             this._uploadCol = new System.Windows.Forms.DataGridViewButtonColumn();
             this._convertCol = new System.Windows.Forms.DataGridViewButtonColumn();
             this._deleteCol = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.githubLabel = new System.Windows.Forms.LinkLabel();
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this._filterTextBox = new System.Windows.Forms.TextBox();
+            this.donateLabel = new System.Windows.Forms.LinkLabel();
+            this.progressBar = new System.Windows.Forms.ProgressBar();
+            this.progressLabel = new System.Windows.Forms.Label();
+            this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             urlLabel = new System.Windows.Forms.Label();
             refreshFolderButton = new System.Windows.Forms.Button();
             refreshMsButton = new System.Windows.Forms.Button();
@@ -158,7 +158,7 @@ namespace LoxStatEdit
             aboutLabel.Name = "aboutLabel";
             aboutLabel.Size = new System.Drawing.Size(342, 35);
             aboutLabel.TabIndex = 100;
-            aboutLabel.Text = "LoxStatEdit v1.0.6.0 (2025.01.15)";
+            aboutLabel.Text = "LoxStatEdit v1.0.6.1 (2025.01.12)";
             aboutLabel.Click += new System.EventHandler(this.aboutLabel_Click);
             // 
             // openFolderButton
@@ -265,6 +265,117 @@ namespace LoxStatEdit
             this._dataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_CellContentClick);
             this._dataGridView.CellValueNeeded += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.DataGridView_CellValueNeeded);
             // 
+            // _nameCol
+            // 
+            this._nameCol.DataPropertyName = "Name";
+            this._nameCol.HeaderText = "Name";
+            this._nameCol.MinimumWidth = 50;
+            this._nameCol.Name = "_nameCol";
+            this._nameCol.ReadOnly = true;
+            this._nameCol.ToolTipText = "Name of the file";
+            this._nameCol.Width = 250;
+            // 
+            // _descriptionCol
+            // 
+            this._descriptionCol.DataPropertyName = "Description";
+            this._descriptionCol.HeaderText = "Description";
+            this._descriptionCol.MinimumWidth = 50;
+            this._descriptionCol.Name = "_descriptionCol";
+            this._descriptionCol.ReadOnly = true;
+            this._descriptionCol.ToolTipText = "Defined in Loxone Config";
+            this._descriptionCol.Width = 250;
+            // 
+            // _yearMonthCol
+            // 
+            this._yearMonthCol.DataPropertyName = "YearMonth";
+            dataGridViewCellStyle1.Format = "yyyy-MM";
+            this._yearMonthCol.DefaultCellStyle = dataGridViewCellStyle1;
+            this._yearMonthCol.HeaderText = "Year/Month";
+            this._yearMonthCol.MinimumWidth = 50;
+            this._yearMonthCol.Name = "_yearMonthCol";
+            this._yearMonthCol.ReadOnly = true;
+            this._yearMonthCol.ToolTipText = "From filename extension";
+            this._yearMonthCol.Width = 200;
+            // 
+            // _dateModifiedCol
+            // 
+            this._dateModifiedCol.HeaderText = "Date modified";
+            this._dateModifiedCol.MinimumWidth = 70;
+            this._dateModifiedCol.Name = "_dateModifiedCol";
+            this._dateModifiedCol.ReadOnly = true;
+            this._dateModifiedCol.ToolTipText = "Date when the file was modified. NOTE: file that were downloaded via FTP have a d" +
+    "ate with tiis or last year.";
+            this._dateModifiedCol.Width = 140;
+            // 
+            // _sizeCol
+            // 
+            this._sizeCol.HeaderText = "Size";
+            this._sizeCol.MinimumWidth = 60;
+            this._sizeCol.Name = "_sizeCol";
+            this._sizeCol.ReadOnly = true;
+            this._sizeCol.ToolTipText = "Size of file on FS (local system)";
+            this._sizeCol.Width = 200;
+            // 
+            // _statusCol
+            // 
+            this._statusCol.DataPropertyName = "StatusString";
+            this._statusCol.HeaderText = "Status";
+            this._statusCol.MinimumWidth = 50;
+            this._statusCol.Name = "_statusCol";
+            this._statusCol.ReadOnly = true;
+            this._statusCol.ToolTipText = "Result of comparision between file on Loxone MS and FS (local system)";
+            this._statusCol.Width = 200;
+            // 
+            // _downloadCol
+            // 
+            this._downloadCol.HeaderText = "Download";
+            this._downloadCol.MinimumWidth = 8;
+            this._downloadCol.Name = "_downloadCol";
+            this._downloadCol.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this._downloadCol.Text = "Download";
+            this._downloadCol.ToolTipText = "Copy file from Loxone MS to FS (local system)";
+            this._downloadCol.Width = 60;
+            // 
+            // _editCol
+            // 
+            this._editCol.HeaderText = "Edit";
+            this._editCol.MinimumWidth = 20;
+            this._editCol.Name = "_editCol";
+            this._editCol.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this._editCol.Text = "Edit";
+            this._editCol.ToolTipText = "Edit entries of this file on FS (local system)";
+            this._editCol.Width = 50;
+            // 
+            // _uploadCol
+            // 
+            this._uploadCol.HeaderText = "Upload";
+            this._uploadCol.MinimumWidth = 20;
+            this._uploadCol.Name = "_uploadCol";
+            this._uploadCol.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this._uploadCol.Text = "Upload";
+            this._uploadCol.ToolTipText = "Copy file from FS (local system) to Loxone MS";
+            this._uploadCol.Width = 60;
+            // 
+            // _convertCol
+            // 
+            this._convertCol.HeaderText = "Convert";
+            this._convertCol.MinimumWidth = 20;
+            this._convertCol.Name = "_convertCol";
+            this._convertCol.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this._convertCol.Text = "Convert";
+            this._convertCol.ToolTipText = "Convert data from old meter function block to new style";
+            this._convertCol.Width = 60;
+            // 
+            // _deleteCol
+            // 
+            this._deleteCol.HeaderText = "Delete";
+            this._deleteCol.MinimumWidth = 20;
+            this._deleteCol.Name = "_deleteCol";
+            this._deleteCol.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this._deleteCol.Text = "Delete";
+            this._deleteCol.ToolTipText = "Delete file on Loxone MS or FS (local system) after confirmation";
+            this._deleteCol.Width = 60;
+            // 
             // githubLabel
             // 
             this.githubLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -330,114 +441,6 @@ namespace LoxStatEdit
             this.progressLabel.TabIndex = 104;
             this.progressLabel.Text = "Idle";
             this.progressLabel.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            // 
-            // _nameCol
-            // 
-            this._nameCol.DataPropertyName = "Name";
-            this._nameCol.HeaderText = "Name";
-            this._nameCol.MinimumWidth = 50;
-            this._nameCol.Name = "_nameCol";
-            this._nameCol.ReadOnly = true;
-            this._nameCol.ToolTipText = "Name of the file";
-            this._nameCol.Width = 250;
-            // 
-            // _descriptionCol
-            // 
-            this._descriptionCol.DataPropertyName = "Description";
-            this._descriptionCol.HeaderText = "Description";
-            this._descriptionCol.MinimumWidth = 50;
-            this._descriptionCol.Name = "_descriptionCol";
-            this._descriptionCol.ReadOnly = true;
-            this._descriptionCol.ToolTipText = "Defined in Loxone Config";
-            this._descriptionCol.Width = 250;
-            // 
-            // _yearMonthCol
-            // 
-            this._yearMonthCol.DataPropertyName = "YearMonth";
-            dataGridViewCellStyle1.Format = "yyyy-MM";
-            this._yearMonthCol.DefaultCellStyle = dataGridViewCellStyle1;
-            this._yearMonthCol.HeaderText = "Year/Month";
-            this._yearMonthCol.MinimumWidth = 50;
-            this._yearMonthCol.Name = "_yearMonthCol";
-            this._yearMonthCol.ReadOnly = true;
-            this._yearMonthCol.ToolTipText = "From filename extension";
-            // 
-            // _dateModifiedCol
-            // 
-            this._dateModifiedCol.HeaderText = "Date modified";
-            this._dateModifiedCol.MinimumWidth = 70;
-            this._dateModifiedCol.Name = "_dateModifiedCol";
-            this._dateModifiedCol.ReadOnly = true;
-            this._dateModifiedCol.ToolTipText = "Date when the file was modified. NOTE: file that were downloaded via FTP have a d" +
-    "ate with tiis or last year.";
-            this._dateModifiedCol.Width = 140;
-            // 
-            // _sizeCol
-            // 
-            this._sizeCol.HeaderText = "Size";
-            this._sizeCol.MinimumWidth = 60;
-            this._sizeCol.Name = "_sizeCol";
-            this._sizeCol.ReadOnly = true;
-            this._sizeCol.ToolTipText = "Size of file on FS (local system)";
-            // 
-            // _statusCol
-            // 
-            this._statusCol.DataPropertyName = "StatusString";
-            this._statusCol.HeaderText = "Status";
-            this._statusCol.MinimumWidth = 50;
-            this._statusCol.Name = "_statusCol";
-            this._statusCol.ReadOnly = true;
-            this._statusCol.ToolTipText = "Result of comparision between file on Loxone MS and FS (local system)";
-            // 
-            // _downloadCol
-            // 
-            this._downloadCol.HeaderText = "Download";
-            this._downloadCol.MinimumWidth = 8;
-            this._downloadCol.Name = "_downloadCol";
-            this._downloadCol.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this._downloadCol.Text = "Download";
-            this._downloadCol.ToolTipText = "Copy file from Loxone MS to FS (local system)";
-            this._downloadCol.Width = 60;
-            // 
-            // _editCol
-            // 
-            this._editCol.HeaderText = "Edit";
-            this._editCol.MinimumWidth = 20;
-            this._editCol.Name = "_editCol";
-            this._editCol.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this._editCol.Text = "Edit";
-            this._editCol.ToolTipText = "Edit entries of this file on FS (local system)";
-            this._editCol.Width = 50;
-            // 
-            // _uploadCol
-            // 
-            this._uploadCol.HeaderText = "Upload";
-            this._uploadCol.MinimumWidth = 20;
-            this._uploadCol.Name = "_uploadCol";
-            this._uploadCol.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this._uploadCol.Text = "Upload";
-            this._uploadCol.ToolTipText = "Copy file from FS (local system) to Loxone MS";
-            this._uploadCol.Width = 60;
-            // 
-            // _convertCol
-            // 
-            this._convertCol.HeaderText = "Convert";
-            this._convertCol.MinimumWidth = 20;
-            this._convertCol.Name = "_convertCol";
-            this._convertCol.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this._convertCol.Text = "Convert";
-            this._convertCol.ToolTipText = "Convert data from old meter function block to new style";
-            this._convertCol.Width = 60;
-            // 
-            // _deleteCol
-            // 
-            this._deleteCol.HeaderText = "Delete";
-            this._deleteCol.MinimumWidth = 20;
-            this._deleteCol.Name = "_deleteCol";
-            this._deleteCol.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this._deleteCol.Text = "Delete";
-            this._deleteCol.ToolTipText = "Delete file on Loxone MS or FS (local system) after confirmation";
-            this._deleteCol.Width = 60;
             // 
             // MiniserverForm
             // 
