@@ -305,7 +305,8 @@ namespace LoxStatEdit
 
 				// Add Cell Formatting
                 _dataGridView.CellFormatting += DataGridView_CellFormatting;
-                //_dataGridView.CellToolTipTextNeeded += new System.Windows.Forms.DataGridViewCellToolTipTextNeededEventHandler(ws_cellToolTipTextNeeded);
+                
+                // Add Tool Tips
                 _dataGridView.CellToolTipTextNeeded += DataGridView_CellToolTipTextNeeded;
 
                 // Add columns manually in the order you want
@@ -700,6 +701,11 @@ namespace LoxStatEdit
 
         private void DataGridView_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
+            if ((e.RowIndex < 0) || (e.RowIndex >= _fileItems.Count))
+            {
+                e.Value = null;
+                return;
+            }
             if (e.ColumnIndex == 0) // The FileName column is at index 0
             {
                 var fileItem = _fileItems[e.RowIndex];
@@ -791,7 +797,6 @@ namespace LoxStatEdit
         {
             try
             {
-                string newLine = Environment.NewLine;
                 if ((e.RowIndex < 0) || (e.RowIndex >= _fileItems.Count))
                 {
                     e.ToolTipText = null;
@@ -833,9 +838,9 @@ namespace LoxStatEdit
 
         private void DataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            if(e.RowIndex < 0) return; //When clicking the header row
+            if (e.RowIndex < 0) return; //When clicking the header row
             var fileItem = _fileItems[e.RowIndex];
-            switch(e.ColumnIndex)
+            switch (e.ColumnIndex)
             {
                 case 6: //Download
                     progressBar.Maximum = 1;
