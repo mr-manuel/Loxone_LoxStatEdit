@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -328,7 +329,7 @@ namespace LoxStatEdit
                 {
                     DataPropertyName = "YearMonth",
                     HeaderText = "Year/Month",
-                    Width = 70,
+                    Width = 90,
                     ToolTipText = "Year and month from file extension on MS. \n"+
                         "NOTE: This date is used on MS to fetch statistics data from a specific year and month.",
                     DefaultCellStyle = { Format = "yyyy-MM" }
@@ -359,7 +360,7 @@ namespace LoxStatEdit
                         Alignment = DataGridViewContentAlignment.MiddleRight,
                         ForeColor = System.Drawing.Color.Black
                     },
-                    AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                    //AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
                 });
                 _dataGridView.Columns.Add(new DataGridViewTextBoxColumn {
                     DataPropertyName = "StatusString",
