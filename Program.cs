@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LoxStatEdit.Properties;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;

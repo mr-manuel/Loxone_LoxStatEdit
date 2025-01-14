@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LoxStatEdit.Properties;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -693,6 +694,18 @@ namespace LoxStatEdit
                 typeof(DataGridView).InvokeMember("DoubleBuffered", System.Reflection.BindingFlags.NonPublic | 
                     System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.SetProperty, null, _dataGridView, new object[] { true });
             }
+
+            // Load screen sizes and settings from user config if found, otherwise use defaults
+
+            //Existing user config does not exist, so load settings from previous assembly
+            if (Settings.Default.IsSettingsUpgradeRequired) //this defaults to true when a new version of this software has been released
+            {
+                Settings.Default.Upgrade(); //upgrade the settings to the newer version
+                Settings.Default.Reload();
+                Settings.Default.IsSettingsUpgradeRequired = false;
+                Settings.Default.Save();
+            } 
+
             if (Properties.Settings.Default.IsMaximized)
                 WindowState = FormWindowState.Maximized;
             else if (Screen.AllScreens.Any(screen => screen.WorkingArea.IntersectsWith(Properties.Settings.Default.WindowPosition)))
