@@ -92,7 +92,7 @@ namespace LoxStatEdit
             // refreshFolderButton
             // 
             refreshFolderButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            refreshFolderButton.Location = new System.Drawing.Point(2236, 73);
+            refreshFolderButton.Location = new System.Drawing.Point(1660, 73);
             refreshFolderButton.Margin = new System.Windows.Forms.Padding(6);
             refreshFolderButton.Name = "refreshFolderButton";
             refreshFolderButton.Size = new System.Drawing.Size(150, 44);
@@ -105,7 +105,7 @@ namespace LoxStatEdit
             // refreshMsButton
             // 
             refreshMsButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            refreshMsButton.Location = new System.Drawing.Point(2236, 23);
+            refreshMsButton.Location = new System.Drawing.Point(1660, 23);
             refreshMsButton.Margin = new System.Windows.Forms.Padding(6);
             refreshMsButton.Name = "refreshMsButton";
             refreshMsButton.Size = new System.Drawing.Size(150, 44);
@@ -127,7 +127,7 @@ namespace LoxStatEdit
             // downloadButton
             // 
             downloadButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            downloadButton.Location = new System.Drawing.Point(1930, 1013);
+            downloadButton.Location = new System.Drawing.Point(1354, 1013);
             downloadButton.Margin = new System.Windows.Forms.Padding(6);
             downloadButton.Name = "downloadButton";
             downloadButton.Size = new System.Drawing.Size(222, 44);
@@ -140,7 +140,7 @@ namespace LoxStatEdit
             // uploadButton
             // 
             uploadButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            uploadButton.Location = new System.Drawing.Point(2164, 1013);
+            uploadButton.Location = new System.Drawing.Point(1588, 1013);
             uploadButton.Margin = new System.Windows.Forms.Padding(6);
             uploadButton.Name = "uploadButton";
             uploadButton.Size = new System.Drawing.Size(222, 44);
@@ -164,7 +164,7 @@ namespace LoxStatEdit
             // openFolderButton
             // 
             openFolderButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            openFolderButton.Location = new System.Drawing.Point(2074, 73);
+            openFolderButton.Location = new System.Drawing.Point(1498, 73);
             openFolderButton.Margin = new System.Windows.Forms.Padding(6);
             openFolderButton.Name = "openFolderButton";
             openFolderButton.Size = new System.Drawing.Size(150, 44);
@@ -177,7 +177,7 @@ namespace LoxStatEdit
             // browseFolderButton
             // 
             browseFolderButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            browseFolderButton.Location = new System.Drawing.Point(1912, 73);
+            browseFolderButton.Location = new System.Drawing.Point(1336, 73);
             browseFolderButton.Margin = new System.Windows.Forms.Padding(6);
             browseFolderButton.Name = "browseFolderButton";
             browseFolderButton.Size = new System.Drawing.Size(150, 44);
@@ -199,7 +199,7 @@ namespace LoxStatEdit
             // filterButton
             // 
             filterButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            filterButton.Location = new System.Drawing.Point(2236, 123);
+            filterButton.Location = new System.Drawing.Point(1660, 123);
             filterButton.Margin = new System.Windows.Forms.Padding(6);
             filterButton.Name = "filterButton";
             filterButton.Size = new System.Drawing.Size(150, 44);
@@ -216,7 +216,7 @@ namespace LoxStatEdit
             this._urlTextBox.Location = new System.Drawing.Point(176, 27);
             this._urlTextBox.Margin = new System.Windows.Forms.Padding(6);
             this._urlTextBox.Name = "_urlTextBox";
-            this._urlTextBox.Size = new System.Drawing.Size(2044, 31);
+            this._urlTextBox.Size = new System.Drawing.Size(1468, 31);
             this._urlTextBox.TabIndex = 1;
             this._urlTextBox.Text = "ftp://adminname:adminpassword@miniserver-ip-or-hostname:21";
             this.toolTip.SetToolTip(this._urlTextBox, "Miniserver connection details");
@@ -229,7 +229,7 @@ namespace LoxStatEdit
             this._folderTextBox.Location = new System.Drawing.Point(176, 77);
             this._folderTextBox.Margin = new System.Windows.Forms.Padding(6);
             this._folderTextBox.Name = "_folderTextBox";
-            this._folderTextBox.Size = new System.Drawing.Size(1720, 31);
+            this._folderTextBox.Size = new System.Drawing.Size(1144, 31);
             this._folderTextBox.TabIndex = 3;
             this.toolTip.SetToolTip(this._folderTextBox, "Path to folder on this computer where statistic files are saved");
             this._folderTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this._folderTextBox_KeyDown);
@@ -259,7 +259,7 @@ namespace LoxStatEdit
             this._dataGridView.Name = "_dataGridView";
             this._dataGridView.RowHeadersWidth = 30;
             this._dataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this._dataGridView.Size = new System.Drawing.Size(2362, 821);
+            this._dataGridView.Size = new System.Drawing.Size(1786, 821);
             this._dataGridView.TabIndex = 10;
             this._dataGridView.VirtualMode = true;
             this._dataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_CellContentClick);
@@ -399,7 +399,7 @@ namespace LoxStatEdit
             this._filterTextBox.Location = new System.Drawing.Point(176, 127);
             this._filterTextBox.Margin = new System.Windows.Forms.Padding(6);
             this._filterTextBox.Name = "_filterTextBox";
-            this._filterTextBox.Size = new System.Drawing.Size(2044, 31);
+            this._filterTextBox.Size = new System.Drawing.Size(1468, 31);
             this._filterTextBox.TabIndex = 7;
             this.toolTip.SetToolTip(this._filterTextBox, "Filter entries by file or description");
             this._filterTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this._filterTextBox_KeyDown);
@@ -423,7 +423,7 @@ namespace LoxStatEdit
             // progressBar
             // 
             this.progressBar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.progressBar.Location = new System.Drawing.Point(1598, 1013);
+            this.progressBar.Location = new System.Drawing.Point(1022, 1013);
             this.progressBar.Margin = new System.Windows.Forms.Padding(6);
             this.progressBar.Name = "progressBar";
             this.progressBar.Size = new System.Drawing.Size(320, 44);
@@ -434,7 +434,7 @@ namespace LoxStatEdit
             this.progressLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.progressLabel.AutoSize = true;
             this.progressLabel.BackColor = System.Drawing.Color.Transparent;
-            this.progressLabel.Location = new System.Drawing.Point(1608, 1023);
+            this.progressLabel.Location = new System.Drawing.Point(1032, 1023);
             this.progressLabel.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.progressLabel.Name = "progressLabel";
             this.progressLabel.Size = new System.Drawing.Size(46, 25);
@@ -446,7 +446,7 @@ namespace LoxStatEdit
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(2410, 1079);
+            this.ClientSize = new System.Drawing.Size(1834, 1079);
             this.Controls.Add(filterButton);
             this.Controls.Add(this._filterTextBox);
             this.Controls.Add(filterLabel);
@@ -471,7 +471,9 @@ namespace LoxStatEdit
             this.MinimumSize = new System.Drawing.Size(1474, 454);
             this.Name = "MiniserverForm";
             this.Text = "Loxone Stats Editor - Miniserver Browser";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MiniserverForm_Closing);
             this.Load += new System.EventHandler(this.MiniserverForm_Load);
+            this.ResizeEnd += new System.EventHandler(this.MiniserverForm_ResizEnd);
             ((System.ComponentModel.ISupportInitialize)(this._dataGridView)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

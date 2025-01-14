@@ -314,7 +314,7 @@ namespace LoxStatEdit
                     DataPropertyName = "FileName",
                     HeaderText = "FileName",
                     Width = 250,
-                    ToolTipText = "Name of the file on the Loxone MS and local file system.\n"+
+                    ToolTipText = "Name of the file on the Loxone MS and local file system (FS).\n"+
                         "NOTE: This is typically an UUID plus extension with .yyyyMM",
                 });
                 _dataGridView.Columns.Add(new DataGridViewTextBoxColumn {
@@ -338,15 +338,22 @@ namespace LoxStatEdit
                     DataPropertyName = "DateModified",
                     HeaderText = "Date modified",
                     Width = 120,
-                    ToolTipText = "Date when the file was modified. \nNOTE: files that were downloaded via FTP always " +
-                                  "have a date with this or last year.",
+                    ToolTipText = "Date and time when the file was modified.\n\nThe date and time is from the local file system (FS), if the file is found there.\n"+
+                        "If the file is not found on the local FS,\nit's the date and time that is received from the MS via FTP.\n"+
+                        "If there is any difference the 'status' column will give you more information.\n\n"+
+                        "NOTE: files that were downloaded via FTP always have a date with this or last year.\n"+
+                        "The reason is that the Loxone MS does not transmit any year in directory listings via FTP.",
                     DefaultCellStyle = { Format = "dd.MM.yyyy - HH:mm:ss" }
                 });
                 _dataGridView.Columns.Add(new DataGridViewTextBoxColumn {
                     DataPropertyName = "Size",
                     HeaderText = "Size",
                     Width = 90,
-                    ToolTipText = "Size of the file on the local file system or MS.",
+                    ToolTipText = "Size of the file on the local file system (FS) or MS.\n\n"+
+                        "The size is from the local FS, if the file is found there.\n"+
+                        "If the file is not found on the local FS,\\nit's the size that is received from the MS via FTP.\n"+
+                        "If there is any difference for files with same modification date/time,\n"+
+                        "the 'status' column will give you more information.",
                     DefaultCellStyle = new DataGridViewCellStyle()
                     {
                         Alignment = DataGridViewContentAlignment.MiddleRight,
@@ -358,7 +365,7 @@ namespace LoxStatEdit
                     DataPropertyName = "StatusString",
                     HeaderText = "Status",
                     Width = 100,
-                    ToolTipText = "Result of a comparision between file on Loxone MS and local file system.",
+                    ToolTipText = "Result of a comparision between the file on Loxone MS and local file system (FS).",
                     DefaultCellStyle = new DataGridViewCellStyle()
                     {
                         BackColor = System.Drawing.Color.White,
@@ -369,31 +376,31 @@ namespace LoxStatEdit
                     DataPropertyName = "Download",
                     HeaderText = "Download",
                     Width = 60,
-                    ToolTipText = "Copy file(s) from Loxone MS to local file system."
+                    ToolTipText = "Copy a file from Loxone MS to local file system."
                 });
                 _dataGridView.Columns.Add(new DataGridViewButtonColumn {
                     DataPropertyName = "Edit",
                     HeaderText = "Edit",
                     Width = 50,
-                    ToolTipText = "Edit statistical data (entries) of the file on local file system."
+                    ToolTipText = "Edit statistical data (entries) in the file on the local file system (FS)."
                 });
                 _dataGridView.Columns.Add(new DataGridViewButtonColumn {
                     DataPropertyName = "Upload",
                     HeaderText = "Upload",
                     Width = 60,
-                    ToolTipText = "Copy file(s) from local file system to Loxone MS."
+                    ToolTipText = "Copy a file from local file system (FS) to Loxone MS."
                 });
                 _dataGridView.Columns.Add(new DataGridViewButtonColumn {
                     DataPropertyName = "Convert",
                     HeaderText = "Convert",
                     Width = 60,
-                    ToolTipText = "Convert data from old meter function block to new style."
+                    ToolTipText = "Convert data from old meter function block to new style.\n\nNOTE: UNDER CONSTRUCTION, not working yet!"
                 });
                 _dataGridView.Columns.Add(new DataGridViewButtonColumn {
                     DataPropertyName = "Delete",
                     HeaderText = "Delete",
                     Width = 60,
-                    ToolTipText = "Delete file on Loxone MS and local file system after confirmation."
+                    ToolTipText = "Delete a file on both, the Loxone MS and the local file system, after confirmation."
                 });
 
                 // Bind the SortableBindingList to the DataGridView
@@ -685,6 +692,14 @@ namespace LoxStatEdit
                 typeof(DataGridView).InvokeMember("DoubleBuffered", System.Reflection.BindingFlags.NonPublic | 
                     System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.SetProperty, null, _dataGridView, new object[] { true });
             }
+            if (Properties.Settings.Default.IsMaximized)
+                WindowState = FormWindowState.Maximized;
+            else if (Screen.AllScreens.Any(screen => screen.WorkingArea.IntersectsWith(Properties.Settings.Default.WindowPosition)))
+            {
+                StartPosition = FormStartPosition.Manual;
+                DesktopBounds = Properties.Settings.Default.WindowPosition;
+                WindowState = FormWindowState.Normal;
+            }
 
             _folderTextBox.Text = Path.Combine(Environment.GetFolderPath(
                 Environment.SpecialFolder.MyDocuments), "LoxStatEdit");
@@ -697,6 +712,23 @@ namespace LoxStatEdit
                 _folderTextBox.Text = Path.GetFullPath(_args[1]);
             RefreshLocal();
             RefreshGridView();
+        }
+
+        private void MiniserverForm_Closing(object sender, FormClosingEventArgs e)
+        {
+            this.SaveWindowPosition(sender, e);
+        }
+        
+        private void MiniserverForm_ResizEnd(object sender, EventArgs e)
+        {
+            this.SaveWindowPosition(sender, e);
+        }
+
+        private void SaveWindowPosition(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.IsMaximized = WindowState == FormWindowState.Maximized;
+            Properties.Settings.Default.WindowPosition = DesktopBounds;
+            Properties.Settings.Default.Save();
         }
 
         private void DataGridView_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
@@ -799,7 +831,7 @@ namespace LoxStatEdit
             {
                 if ((e.RowIndex < 0) || (e.RowIndex >= _fileItems.Count))
                 {
-                    e.ToolTipText = null;
+                    //e.ToolTipText = null;
                     return;
                 }
                
@@ -809,7 +841,7 @@ namespace LoxStatEdit
                     case 0: // fileItem.FileName; 
                         if (!fileItem.IsValidMsStatsFile)
                         {
-                            e.ToolTipText = "The UUID and/or file extension looks malformed.\n\n "+
+                            e.ToolTipText = "The UUID and/or file extension looks to be malformed.\n\n"+
                                 "Please check, if it is used by the MS. If not, you may consider to remove the file.";
                         }
                         break;
