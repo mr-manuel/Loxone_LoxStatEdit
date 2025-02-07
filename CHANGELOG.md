@@ -1,6 +1,16 @@
 # Changelog
 
 
+## v1.0.6.2
+* Added: Button to convert a file (not ready yet)
+* Added: Button to delete file on MS and local file system
+* Added: Columns for file size and file date
+* Added: Red background and tooltip, if file is not using UUID plus .yyyyMM as filename
+* Added: Tooltips in header row
+* Changed: Fixed calcuation for modification date when file list is retrieved from MS via FTP handle modification date of Feb 29th (leap years) correctlytranslate modification time from UTC to local time
+* Changed: Stability improvements
+
+
 ## v1.0.5.1
 
 * Added: Show with cursor change that the `Index` column cannot be changed
