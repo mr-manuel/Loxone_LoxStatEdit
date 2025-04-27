@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.6.3
+* Changed: Fixed date problem for date after 29th Feb (Mar 01) https://github.com/mr-manuel/Loxone_LoxStatEdit/issues/10
+* Changed: Optimized display of file size
+* Removed: Convert button, since it has no function yet
 
 ## v1.0.6.2
 * Added: Button to convert a file (not ready yet)

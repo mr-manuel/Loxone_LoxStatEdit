@@ -111,11 +111,11 @@ namespace LoxStatEdit
                 }
             }
 
-            public long Size
+            public string Size
             {
                 get
                 {
-                    return (FileInfo != null) ? FileInfo.Length : MsFileInfo.Size;
+                    return (((FileInfo != null) ? FileInfo.Length : MsFileInfo.Size) / 1024).ToString() + " KB";
                 }
             }
 
@@ -392,12 +392,14 @@ namespace LoxStatEdit
                     Width = 60,
                     ToolTipText = "Copy a file from local file system (FS) to Loxone MS."
                 });
+                /*
                 _dataGridView.Columns.Add(new DataGridViewButtonColumn {
                     DataPropertyName = "Convert",
                     HeaderText = "Convert",
                     Width = 60,
                     ToolTipText = "Convert data from old meter function block to new style.\n\nNOTE: UNDER CONSTRUCTION, not working yet!"
                 });
+                */
                 _dataGridView.Columns.Add(new DataGridViewButtonColumn {
                     DataPropertyName = "Delete",
                     HeaderText = "Delete",
@@ -825,8 +827,8 @@ namespace LoxStatEdit
                     case 6: e.Value = "Download"; break;
                     case 7: e.Value = "Edit"; break;
                     case 8: e.Value = "Upload"; break;
-                    case 9: e.Value = "Convert"; break;
-                    case 10: e.Value = "Delete"; break;
+                    // case 9: e.Value = "Convert"; break;
+                    case 9: e.Value = "Delete"; break;
                     default: e.Value = null; break;
                 }
             }

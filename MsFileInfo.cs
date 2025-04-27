@@ -65,6 +65,7 @@ namespace LoxStatEdit
                         if (dateString.StartsWith("Feb 29"))
                         {
                             dateString = $"Mar 01 {groups[2].Value.Substring(7)}";
+                            dateString = Regex.Replace(dateString, @"\s+", " ");
                             isFeb29 = true;
                         }
 
